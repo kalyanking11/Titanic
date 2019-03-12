@@ -1,0 +1,81 @@
+---
+title: "titanic_survival"
+author: "Kalyan"
+date: "March 6, 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+```{r}
+titanic_input=read.csv("D:/study/Learn Data Science/titanic/train.csv")
+
+#View(titanic_input)
+head(titanic_input)
+```
+
+```{r}
+linear_train=lm(Survived~Sex+Age+SibSp+Parch+Fare+Embarked,titanic_input)
+summary(linear_train)
+```
+
+```{r}
+
+```
+
+```{r}
+titanic_test=read.csv("D:/study/Learn Data Science/titanic/test.csv")
+linear_predict=predict(linear_train,titanic_test)
+linear_predict
+```
+```{r}
+logistic_train=glm(Survived~Sex+SibSp+Parch+Fare+Embarked,titanic_input,family=binomial)
+summary(logistic_train)
+```
+
+```{r}
+titanic_test=read.csv("D:/study/Learn Data Science/titanic/test.csv")
+logistic_predict=predict(logistic_train,titanic_test)
+logistic_predict
+```
+
+```{r}
+
+results=setNames(data.frame(matrix(nrow=nrow(titanic_test),ncol = 2)), c("PassengerId", "Survived"))
+results$PassengerId=titanic_test$PassengerId
+results$Survived=ifelse(logistic_predict >.5,1,0)
+results
+write.csv(results, file = "D:/study/Learn Data Science/titanic/results.csv")
+
+```
+
+```{r}
+require(caret) 
+titanic_input=read.csv("D:/study/Learn Data Science/titanic/gender_submission.csv")
+cm<-confusionMatrix(data=results$Survived, 
+  reference=.Failure)
+
+Accuracy<-round(cm$overall[1],2)
+```
+
